@@ -1,0 +1,516 @@
+{
+ "scenes": [
+  {
+   "id": "intro",
+   "title": "Tool Nose Radius Compensation",
+   "lines": [
+    {
+     "say": "In CNC turning, the program describes the part outline. But the tool that cuts it is never a perfect, sharp point.",
+     "cap": "In CNC turning, the program describes the part outline — but the tool is never a perfect sharp point."
+    },
+    {
+     "say": "Every turning insert has a small rounded corner, called the nose radius.",
+     "cap": "Every turning insert has a small rounded corner: the nose radius."
+    },
+    {
+     "say": "In this lesson, you'll see why that radius causes errors on tapers and arcs, how big the error is, and how tool nose radius compensation, using G forty-one, G forty-two, and G forty, removes it.",
+     "cap": "Why the radius causes errors on tapers and arcs, how big the error is, and how G41 / G42 / G40 remove it."
+    },
+    {
+     "say": "Answer the quick checks along the way. The video pauses for each one.",
+     "cap": "Answer the quick checks along the way — the video pauses for each one."
+    }
+   ]
+  },
+  {
+   "id": "nose",
+   "title": "The imaginary tool tip",
+   "lines": [
+    {
+     "say": "Here is a turning insert. Its corner is ground to a radius, typically zero point four, zero point eight, or one point two millimetres.",
+     "cap": "The insert corner is ground to a radius — typically 0.4, 0.8 or 1.2 mm.",
+     "cue": "zoom"
+    },
+    {
+     "say": "A larger radius gives a stronger edge and a better surface finish. But it also makes the problem we are about to see, larger.",
+     "cap": "A larger radius: stronger edge, better finish — and a larger error."
+    },
+    {
+     "say": "When you touch off a tool, you touch the diameter in X, and the face in Z.",
+     "cap": "Touch-off: the diameter sets X, the face sets Z.",
+     "cue": "touch"
+    },
+    {
+     "say": "Those two touch points lie on two tangent lines to the nose arc. One parallel to Z, and one parallel to X.",
+     "cap": "The two touch points lie on tangents to the nose arc — one parallel to Z, one parallel to X.",
+     "cue": "tangents"
+    },
+    {
+     "say": "Where the tangent lines meet is a point that does not exist on the tool. It is called the imaginary tool tip.",
+     "cap": "Where the tangents meet is a point not on the tool: the IMAGINARY TOOL TIP.",
+     "cue": "tip"
+    },
+    {
+     "say": "With compensation off, it is this imaginary tip, not the nose arc, that the control drives exactly along your programmed path.",
+     "cap": "With compensation OFF, the control drives the imaginary tip — not the nose arc — along the programmed path."
+    }
+   ],
+   "questions": [
+    "q1"
+   ]
+  },
+  {
+   "id": "error",
+   "title": "Where the error appears",
+   "lines": [
+    {
+     "say": "When the tool turns a straight diameter along Z, the nose touches the work at its tangent point, which lies on the same line that the imaginary tip follows.",
+     "cap": "Straight turning along Z: the contact point lies on the same line the imaginary tip follows.",
+     "cue": "straight"
+    },
+    {
+     "say": "The same is true when it faces along X. So straight turning and facing come out exactly to size.",
+     "cap": "Facing along X: same. Straight turning and facing come out exactly to size.",
+     "cue": "face"
+    },
+    {
+     "say": "Now, let the imaginary tip follow a forty-five degree chamfer.",
+     "cap": "Now let the imaginary tip follow a 45° chamfer.",
+     "cue": "chamfer"
+    },
+    {
+     "say": "The point of the nose that actually cuts is no longer on the line the imaginary tip follows. It has moved around the arc.",
+     "cap": "The cutting point has moved around the nose arc — off the line the imaginary tip follows."
+    },
+    {
+     "say": "The nose never reaches the programmed line, and a sliver of material is left behind.",
+     "cap": "The nose never reaches the programmed line — a sliver of material is left behind.",
+     "cue": "sliver"
+    },
+    {
+     "say": "A convex arc shows the same effect. The part comes out oversize, with the largest error halfway around the arc.",
+     "cap": "A convex arc: same effect — oversize, with the largest error halfway around.",
+     "cue": "arc"
+    }
+   ],
+   "questions": [
+    "q2"
+   ]
+  },
+  {
+   "id": "calc",
+   "title": "How big is the error?",
+   "lines": [
+    {
+     "say": "How large is the error? For a taper at angle theta to the Z axis, the error measured normal to the surface is R, times, sine theta plus cosine theta, minus one.",
+     "cap": "Taper at angle θ to Z: normal error  e = R (sin θ + cos θ − 1)",
+     "cue": "formula"
+    },
+    {
+     "say": "At zero degrees, and at ninety degrees, this is zero.",
+     "cap": "At 0° and 90° the error is zero.",
+     "cue": "graph"
+    },
+    {
+     "say": "It is largest at forty-five degrees, where it reaches zero point four one four times the nose radius.",
+     "cap": "Maximum at 45°:  e = 0.414 R",
+     "cue": "peak"
+    },
+    {
+     "say": "With a zero point eight millimetre nose, a forty-five degree chamfer is off by about zero point three three millimetres, normal to the surface.",
+     "cap": "R = 0.8 mm, 45° chamfer:  e ≈ 0.33 mm normal to the surface.",
+     "cue": "example"
+    },
+    {
+     "say": "Measured on the diameter, that is nearly one millimetre. Far outside a normal drawing tolerance.",
+     "cap": "On diameter ≈ 0.94 mm — far outside a normal tolerance."
+    }
+   ],
+   "questions": [
+    "q3"
+   ]
+  },
+  {
+   "id": "g4142",
+   "title": "G41 · G42 · G40",
+   "lines": [
+    {
+     "say": "Tool nose radius compensation fixes this. You program the true part outline, and the control offsets the nose centre, so the arc stays tangent to the profile everywhere.",
+     "cap": "TNRC: program the true outline; the control offsets the nose centre so the arc stays tangent to the profile.",
+     "cue": "comp"
+    },
+    {
+     "say": "You only have to tell it which side of the profile the tool is on.",
+     "cap": "You tell it which side of the profile the tool is on."
+    },
+    {
+     "say": "G forty-one is compensation left. Looking along the direction of tool motion, the tool is on the left of the profile.",
+     "cap": "G41 — compensation LEFT: looking along the motion, the tool is left of the profile.",
+     "cue": "g41"
+    },
+    {
+     "say": "G forty-two is compensation right. The tool is on the right.",
+     "cap": "G42 — compensation RIGHT: the tool is right of the profile.",
+     "cue": "g42"
+    },
+    {
+     "say": "And G forty cancels compensation.",
+     "cap": "G40 — cancel compensation."
+    },
+    {
+     "say": "On the standard lathe view, with plus X upward and the tool above the centre line, outside turning toward the chuck is G forty-two.",
+     "cap": "Standard view (+X up, tool above centre line): OD turning toward the chuck → G42.",
+     "cue": "od"
+    },
+    {
+     "say": "Boring toward the chuck puts the tool on the other side of the profile. So boring is G forty-one.",
+     "cap": "ID boring toward the chuck: tool on the other side → G41.",
+     "cue": "id"
+    }
+   ],
+   "questions": [
+    "q4",
+    "q5"
+   ]
+  },
+  {
+   "id": "offsets",
+   "title": "The offset page: R and T",
+   "lines": [
+    {
+     "say": "For compensation to work, the control needs two values on the tool offset page.",
+     "cap": "The control needs two values on the tool offset page.",
+     "cue": "page"
+    },
+    {
+     "say": "R is the nose radius. For example, zero point eight.",
+     "cap": "R — the nose radius (e.g. 0.8)."
+    },
+    {
+     "say": "T is the tip orientation code. It tells the control in which direction the imaginary tip lies, from the centre of the nose.",
+     "cap": "T — tip orientation code: the direction of the imaginary tip from the nose centre.",
+     "cue": "codes"
+    },
+    {
+     "say": "Codes one to eight cover the eight possible directions. Codes zero and nine mean the programmed point is the nose centre itself.",
+     "cap": "Codes 1–8: the eight directions.  Codes 0 / 9: the programmed point is the nose centre."
+    },
+    {
+     "say": "The numbering chart differs between front turret and rear turret lathes. So always read the code from your own machine's chart, by matching the direction from the nose centre to the imaginary tip.",
+     "cap": "Charts differ for front- and rear-turret lathes — read T from YOUR machine's chart by matching the direction.",
+     "cue": "typical"
+    },
+    {
+     "say": "Radius wear offsets add to the geometry value, so a worn or changed insert can be corrected without editing the program.",
+     "cap": "Wear R adds to geometry R — correct a worn insert without editing the program."
+    }
+   ],
+   "questions": [
+    "q6",
+    "q7"
+   ]
+  },
+  {
+   "id": "program",
+   "title": "Programming rules",
+   "lines": [
+    {
+     "say": "Here is a short finishing program, using compensation.",
+     "cap": "A short finishing program using compensation.",
+     "cue": "code"
+    },
+    {
+     "say": "Compensation is switched on with G forty-two on a straight move, G zero or G one, while the tool is still clear of the part.",
+     "cap": "Switch ON with G42 on a straight move (G00/G01) while the tool is clear of the part.",
+     "cue": "startup"
+    },
+    {
+     "say": "This start-up move should be longer than the nose radius, so the control has room to build up the offset.",
+     "cap": "The start-up move must be longer than the nose radius."
+    },
+    {
+     "say": "Never start or cancel compensation on an arc. Most controls raise an alarm.",
+     "cap": "Never start or cancel compensation on an arc (G02/G03) — most controls alarm.",
+     "cue": "noarc"
+    },
+    {
+     "say": "The control reads ahead to see the next move. Avoid several blocks in a row with no X or Z motion, or it can lose track and gouge the part.",
+     "cap": "The control looks ahead — avoid several blocks in a row with no X/Z motion, or it may gouge.",
+     "cue": "lookahead"
+    },
+    {
+     "say": "The chamfer and the arc are now cut to size, because the nose stays tangent to the programmed outline.",
+     "cap": "Chamfer and arc are now cut to size: the nose stays tangent to the outline.",
+     "cue": "cutting"
+    },
+    {
+     "say": "Finally, cancel with G forty, on a straight move away from the part.",
+     "cap": "Cancel with G40 on a straight move away from the part.",
+     "cue": "cancel"
+    }
+   ],
+   "questions": [
+    "q8"
+   ]
+  },
+  {
+   "id": "summary",
+   "title": "Summary",
+   "lines": [
+    {
+     "say": "To sum up.",
+     "cap": "Summary"
+    },
+    {
+     "say": "The control follows the imaginary tip. So without compensation, tapers and arcs are cut wrong, by up to zero point four one four R, at forty-five degrees.",
+     "cap": "No compensation → tapers and arcs cut wrong, up to 0.414 R at 45°.",
+     "cue": "s1"
+    },
+    {
+     "say": "Enter R and T on the offset page. Use G forty-two for outside turning, and G forty-one for boring toward the chuck. Start on a straight move in clear air, and cancel with G forty.",
+     "cap": "Set R and T · G42 OD / G41 ID (toward chuck) · start on a straight move in clear air · cancel with G40.",
+     "cue": "s2"
+    },
+    {
+     "say": "That completes the lesson. Your score and progress have been recorded.",
+     "cap": "Lesson complete — your score and progress have been recorded.",
+     "cue": "s3"
+    }
+   ]
+  }
+ ],
+ "questions": [
+  {
+   "id": "q1",
+   "scene": "nose",
+   "prompt": "With tool nose radius compensation OFF, which point does the control move exactly along the programmed path?",
+   "options": [
+    {
+     "id": "a",
+     "text": "The centre of the nose radius",
+     "fb": "The nose centre is only the programmed point when tip code 0 or 9 is used. Normally, offsets are touched off on X and Z, which locate the imaginary tip."
+    },
+    {
+     "id": "b",
+     "text": "The imaginary tool tip, where the X and Z tangents to the nose meet",
+     "fb": ""
+    },
+    {
+     "id": "c",
+     "text": "The actual point of the nose arc that is in contact with the work",
+     "fb": "The contact point moves around the arc as the direction changes. The control doesn't track it — that is exactly why errors appear."
+    },
+    {
+     "id": "d",
+     "text": "The turret reference point",
+     "fb": "The tool geometry offsets shift the turret reference to the touched-off point — the imaginary tip — so that is what follows the path."
+    }
+   ],
+   "answer": "b",
+   "why": "Touch-off sets X on the diameter and Z on the face; both lie on tangents whose intersection is the imaginary tip, so that is the point the control drives along the path."
+  },
+  {
+   "id": "q2",
+   "scene": "error",
+   "prompt": "On which features does an uncompensated nose radius produce NO dimensional error?",
+   "options": [
+    {
+     "id": "a",
+     "text": "45° chamfers",
+     "fb": "45° is where the error is largest (0.414 R)."
+    },
+    {
+     "id": "b",
+     "text": "Convex corner radii",
+     "fb": "Arcs are cut oversize; the error peaks halfway around the arc."
+    },
+    {
+     "id": "c",
+     "text": "Straight turning along Z and facing along X",
+     "fb": ""
+    },
+    {
+     "id": "d",
+     "text": "Tapers of any angle",
+     "fb": "Any taper between 0° and 90° has a non-zero error R(sin θ + cos θ − 1)."
+    }
+   ],
+   "answer": "c",
+   "why": "Moving parallel to Z or X, the nose's tangent point lies on the same line as the imaginary tip, so the cut surface lands exactly on the programmed line."
+  },
+  {
+   "id": "q3",
+   "scene": "calc",
+   "prompt": "A 45° chamfer is finished with a 0.8 mm nose radius and compensation OFF. The error normal to the chamfer is about:",
+   "options": [
+    {
+     "id": "a",
+     "text": "0.80 mm",
+     "fb": "That is R itself. The error is R(sin 45° + cos 45° − 1) = 0.414 R."
+    },
+    {
+     "id": "b",
+     "text": "0.23 mm",
+     "fb": "0.23 mm is R(1 − cos 45°) — not the right relation. Use e = R(sin θ + cos θ − 1)."
+    },
+    {
+     "id": "c",
+     "text": "1.13 mm",
+     "fb": "1.13 mm is R√2 — the distance from nose centre to imaginary tip, not the surface error."
+    },
+    {
+     "id": "d",
+     "text": "0.33 mm",
+     "fb": ""
+    }
+   ],
+   "answer": "d",
+   "why": "e = R(sin 45° + cos 45° − 1) = 0.414 × 0.8 ≈ 0.33 mm, normal to the chamfer (≈ 0.94 mm on diameter)."
+  },
+  {
+   "id": "q4",
+   "scene": "g4142",
+   "prompt": "Standard lathe view (+X up, tool above the centre line). Outside-diameter turning toward the chuck uses:",
+   "options": [
+    {
+     "id": "a",
+     "text": "G41",
+     "fb": "Facing along the motion (−Z), the tool is on the RIGHT of the profile, so it is G42. G41 is for boring toward the chuck."
+    },
+    {
+     "id": "b",
+     "text": "G42",
+     "fb": ""
+    },
+    {
+     "id": "c",
+     "text": "G40",
+     "fb": "G40 cancels compensation."
+    },
+    {
+     "id": "d",
+     "text": "G43",
+     "fb": "G43 is tool length compensation on machining centres, not nose radius compensation."
+    }
+   ],
+   "answer": "b",
+   "why": "Facing along the motion (toward the chuck, −Z) with the tool above the profile, the tool is on the right → G42."
+  },
+  {
+   "id": "q5",
+   "scene": "g4142",
+   "prompt": "Same view. Boring an inside diameter toward the chuck uses:",
+   "options": [
+    {
+     "id": "a",
+     "text": "G42",
+     "fb": "Inside the bore the tool is on the other side of the profile — LEFT of the motion — so G41."
+    },
+    {
+     "id": "b",
+     "text": "G40",
+     "fb": "G40 cancels compensation."
+    },
+    {
+     "id": "c",
+     "text": "G41",
+     "fb": ""
+    },
+    {
+     "id": "d",
+     "text": "Either — the control decides from the tip code",
+     "fb": "The tip code sets where the imaginary tip lies on the nose; the side of the profile is still chosen by G41/G42."
+    }
+   ],
+   "answer": "c",
+   "why": "Inside the bore the tool is below the wall it cuts — on the left of the motion toward the chuck → G41."
+  },
+  {
+   "id": "q6",
+   "scene": "offsets",
+   "prompt": "Which two values must be in the tool offset page for compensation to work correctly?",
+   "options": [
+    {
+     "id": "a",
+     "text": "Nose radius R and tip orientation code T",
+     "fb": ""
+    },
+    {
+     "id": "b",
+     "text": "X and Z geometry offsets only",
+     "fb": "X and Z locate the imaginary tip, but without R and T the control can't compute the nose-centre offset."
+    },
+    {
+     "id": "c",
+     "text": "Nose radius R and the wear X value",
+     "fb": "Wear X adjusts size; the control still needs T to know where the imaginary tip lies."
+    },
+    {
+     "id": "d",
+     "text": "Cutting speed and feed",
+     "fb": "Speed and feed are programmed with S and F; they do not affect the compensation geometry."
+    }
+   ],
+   "answer": "a",
+   "why": "R gives the offset distance and T tells the control where the imaginary tip lies relative to the nose centre; both are needed."
+  },
+  {
+   "id": "q7",
+   "scene": "offsets",
+   "prompt": "What does the tip orientation code (T) tell the control?",
+   "options": [
+    {
+     "id": "a",
+     "text": "The insert shape (C, D, V…)",
+     "fb": "Insert shape is not entered for compensation. T describes direction only."
+    },
+    {
+     "id": "b",
+     "text": "The direction of the imaginary tip from the nose centre",
+     "fb": ""
+    },
+    {
+     "id": "c",
+     "text": "Which side of the profile the tool is on",
+     "fb": "That is chosen in the program with G41/G42, not by T."
+    },
+    {
+     "id": "d",
+     "text": "How much nose wear to add",
+     "fb": "Wear is entered in the wear R column; T is a direction code."
+    }
+   ],
+   "answer": "b",
+   "why": "T is a direction code: which way the imaginary tip lies from the nose centre (0/9 = the centre itself)."
+  },
+  {
+   "id": "q8",
+   "scene": "program",
+   "prompt": "Which is the correct way to switch ON nose radius compensation?",
+   "options": [
+    {
+     "id": "a",
+     "text": "On the first G02/G03 arc of the profile",
+     "fb": "Starting compensation on an arc raises an alarm on most controls."
+    },
+    {
+     "id": "b",
+     "text": "On a straight G00/G01 move, clear of the part, longer than the nose radius",
+     "fb": ""
+    },
+    {
+     "id": "c",
+     "text": "In a block with no X or Z motion, just before the profile",
+     "fb": "The offset is built up during motion; a block with no X/Z motion gives it nothing to work with."
+    },
+    {
+     "id": "d",
+     "text": "On the first cutting move, with the tool already touching the part",
+     "fb": "The tool would gouge or leave a mark as the offset builds up. Start in clear air."
+    }
+   ],
+   "answer": "b",
+   "why": "The offset is built up during a straight move; it must happen in clear air and be longer than the nose radius."
+  }
+ ]
+}

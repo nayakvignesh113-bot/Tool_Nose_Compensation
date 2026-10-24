@@ -1,0 +1,489 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson Analytics Dashboard</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F5F7FB;--panel:#FFFFFF;--panel2:#F0F3F9;--line:#E2E8F2;--text:#0E1A2E;--muted:#5B6B84;--accent:#C27F14;--accentBg:#FFF4DF;--blue:#1D6FD8;--green:#0F9F6E;--red:#D6334F;--amber:#E39A12;--r:14px;--sh:0 1px 2px rgba(16,24,40,.05),0 4px 14px rgba(16,24,40,.05)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0A1120;--panel:#111C33;--panel2:#16233F;--line:#22314F;--text:#E8EEF8;--muted:#8EA3C4;--accent:#F5A524;--accentBg:rgba(245,165,36,.12);--blue:#5AA7FF;--green:#34D399;--red:#FB7185;--amber:#F5A524;--sh:none}}
+:root[data-theme="dark"]{--bg:#0A1120;--panel:#111C33;--panel2:#16233F;--line:#22314F;--text:#E8EEF8;--muted:#8EA3C4;--accent:#F5A524;--accentBg:rgba(245,165,36,.12);--blue:#5AA7FF;--green:#34D399;--red:#FB7185;--amber:#F5A524;--sh:none}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+button,input,select{font:inherit;color:inherit}
+.hidden{display:none!important}
+.mono{font-family:"JetBrains Mono",monospace}
+.muted{color:var(--muted)}
+.wrap{max-width:1320px;margin:0 auto;padding:18px 16px 60px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--sh)}
+.btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--panel);border-radius:10px;padding:8px 12px;font-weight:600;cursor:pointer;white-space:nowrap}
+.btn:hover{background:var(--panel2)}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:#1A1205}
+.btn.danger{color:var(--red)}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+input,select{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px 10px;outline:none}
+input:focus,select:focus{border-color:var(--blue)}
+/* login */
+.login{max-width:400px;margin:12vh auto 0;padding:28px}
+.login h1{margin:0 0 4px;font-size:22px}
+.login label{display:block;font-weight:600;font-size:13px;margin:14px 0 6px;color:var(--muted)}
+.login input{width:100%;padding:11px 12px}
+.err{color:var(--red);min-height:20px;margin-top:10px}
+/* top */
+.top{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.top h1{font-size:20px;margin:0;flex:1;min-width:220px}
+.top h1 small{display:block;font-size:12px;color:var(--muted);font-weight:600;letter-spacing:.06em;text-transform:uppercase}
+.filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.filters label{font-size:12px;color:var(--muted);font-weight:600;display:flex;flex-direction:column;gap:3px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--panel)}
+.seg button{border:0;background:transparent;padding:8px 11px;font-weight:600;cursor:pointer;color:var(--muted)}
+.seg button.on{background:var(--accentBg);color:var(--text)}
+.banner{padding:10px 14px;border-radius:10px;background:var(--accentBg);border:1px solid var(--accent);margin-bottom:14px;font-weight:600}
+/* kpis */
+.kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:14px}
+.kpi{padding:14px 16px}
+.kpi .l{font-size:12px;color:var(--muted);font-weight:600}
+.kpi .v{font-size:26px;font-weight:800;letter-spacing:-.02em;margin-top:2px;font-variant-numeric:tabular-nums}
+.kpi .s{font-size:12px;color:var(--muted)}
+.live{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--green);margin-right:6px;box-shadow:0 0 0 0 rgba(15,159,110,.5);animation:pulse 1.6s infinite}
+@keyframes pulse{70%{box-shadow:0 0 0 8px rgba(15,159,110,0)}100%{box-shadow:0 0 0 0 rgba(15,159,110,0)}}
+.grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;margin-bottom:14px}
+.grid2>*,.kpis>*{min-width:0}
+.panel{min-width:0;overflow:hidden}
+.panel{padding:14px 16px}
+.ph{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+.ph h2{font-size:15px;margin:0}
+.ph .acts{display:flex;gap:6px}
+.ph .btn{padding:5px 9px;font-size:12px}
+.chartbox{position:relative;height:260px}
+.note{font-size:12px;color:var(--muted);margin-top:6px}
+/* tables */
+.tw{overflow:auto;max-height:560px;border:1px solid var(--line);border-radius:10px}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th,td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+th{position:sticky;top:0;background:var(--panel2);font-size:12px;color:var(--muted);font-weight:700;cursor:pointer;user-select:none;z-index:1}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+tbody tr{cursor:pointer} tbody tr:hover{background:var(--panel2)}
+.tag{display:inline-block;padding:1px 7px;border-radius:999px;font-size:11px;font-weight:700;margin-right:4px;border:1px solid var(--line)}
+.tag.r{color:var(--red);border-color:color-mix(in srgb,var(--red) 40%,transparent)}
+.tag.a{color:var(--amber);border-color:color-mix(in srgb,var(--amber) 40%,transparent)}
+.tag.g{color:var(--green);border-color:color-mix(in srgb,var(--green) 40%,transparent)}
+.optbar{display:flex;height:16px;border-radius:4px;overflow:hidden;min-width:180px;background:var(--panel2)}
+.optbar span{display:block;height:100%;font-size:10px;line-height:16px;text-align:center;color:#fff;font-weight:700;overflow:hidden}
+.prompt{max-width:360px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block;vertical-align:bottom}
+/* drawer */
+.drawer{position:fixed;inset:0 0 0 auto;width:min(560px,100%);background:var(--panel);border-left:1px solid var(--line);box-shadow:-10px 0 30px rgba(0,0,0,.15);z-index:20;overflow:auto;padding:18px 18px 40px;transform:translateX(100%);transition:transform .2s}
+.drawer.open{transform:none}
+.scrim{position:fixed;inset:0;background:rgba(5,10,20,.35);z-index:19}
+.att{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:10px 0}
+.qrow{display:flex;gap:8px;align-items:center;font-size:13px;padding:3px 0}
+.dotq{width:18px;height:18px;border-radius:5px;display:grid;place-items:center;font-size:11px;font-weight:800;color:#fff;flex:none}
+.timeline{position:relative;height:14px;background:var(--panel2);border-radius:4px;overflow:hidden;margin:6px 0}
+.timeline span{position:absolute;top:0;height:100%;background:var(--blue);opacity:.7}
+@media (max-width:1100px){.kpis{grid-template-columns:repeat(3,1fr)}}
+@media (max-width:760px){.grid2{grid-template-columns:minmax(0,1fr)}.filters label{flex:1 1 140px}.filters input{width:100%!important}.kpis{grid-template-columns:repeat(2,1fr)}.top h1{min-width:100%}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<section id="loginView" class="card login">
+  <h1>Instructor dashboard</h1>
+  <div class="muted">Tool Nose Radius Compensation · progress &amp; results</div>
+  <form id="loginForm">
+    <label for="em">Email</label><input id="em" type="email" autocomplete="username" required>
+    <label for="pw">Password</label><input id="pw" type="password" autocomplete="current-password" required>
+    <button class="btn pri" style="width:100%;justify-content:center;margin-top:18px;padding:11px" id="loginBtn">Sign in</button>
+    <div class="err" id="loginErr"></div>
+  </form>
+  <div class="muted" style="font-size:12px;margin-top:6px">Use your account in this Supabase project. Only emails on the instructor list can see data.</div>
+  <div style="margin-top:14px"><button class="btn" id="demoBtn" type="button">Preview with sample data</button></div>
+</section>
+
+<section id="app" class="hidden">
+  <div class="top">
+    <h1><small id="modTitle">Lesson</small>Class progress &amp; results</h1>
+    <span class="muted" id="updated" style="font-size:12px"></span>
+    <label class="btn" style="gap:8px"><input type="checkbox" id="auto" style="margin:0"> Live (30 s)</label>
+    <button class="btn" id="refresh">↻ Refresh</button>
+    <button class="btn pri" id="xlsx">⬇ Excel (all data)</button>
+    <button class="btn" id="openToggle">…</button>
+    <button class="btn" id="signout">Sign out</button>
+  </div>
+  <div class="banner hidden" id="demoBanner">SAMPLE DATA: these are 64 synthetic students so you can preview the dashboard. Sign in to see real results.</div>
+  <div class="filters">
+    <label>Search<input id="q" placeholder="USN or name" style="width:180px"></label>
+    <label>From<input id="from" type="date"></label>
+    <label>To<input id="to" type="date"></label>
+    <label>USN prefix (batch)<input id="prefix" placeholder="e.g. 4MT22ME" style="width:140px"></label>
+    <label>Analyse<span class="seg" id="basis"><button data-b="first" class="on">First attempt</button><button data-b="best">Best</button><button data-b="latest">Latest</button></span></label>
+  </div>
+
+  <div class="kpis">
+    <div class="card kpi"><div class="l">Students</div><div class="v" id="kStu">–</div><div class="s" id="kStuS"></div></div>
+    <div class="card kpi"><div class="l">Completed</div><div class="v" id="kDone">–</div><div class="s" id="kDoneS"></div></div>
+    <div class="card kpi"><div class="l">Mean score</div><div class="v" id="kMean">–</div><div class="s" id="kMeanS"></div></div>
+    <div class="card kpi"><div class="l">Median score</div><div class="v" id="kMed">–</div><div class="s" id="kMedS"></div></div>
+    <div class="card kpi"><div class="l">Video watched</div><div class="v" id="kWatch">–</div><div class="s" id="kWatchS"></div></div>
+    <div class="card kpi"><div class="l"><span class="live"></span>Active now</div><div class="v" id="kLive">–</div><div class="s" id="kLiveS">last 2 min</div></div>
+  </div>
+
+  <div class="grid2">
+    <div class="card panel">
+      <div class="ph"><h2>Score distribution</h2><div class="acts"><button class="btn" data-pub="dist">PNG (publication)</button></div></div>
+      <div class="chartbox"><canvas id="cDist"></canvas></div>
+      <div class="note" id="distNote"></div>
+    </div>
+    <div class="card panel">
+      <div class="ph"><h2>Where students stop watching</h2><div class="acts"><button class="btn" data-pub="ret">PNG (publication)</button></div></div>
+      <div class="chartbox"><canvas id="cRet"></canvas></div>
+      <div class="note">Share of students who watched each 5-second slice. Diamonds mark the quick checks.</div>
+    </div>
+  </div>
+
+  <div class="card panel" style="margin-bottom:14px">
+    <div class="ph"><h2>Item analysis</h2><div class="acts"><button class="btn" data-pub="item">PNG (publication)</button></div></div>
+    <div class="grid2" style="margin:0;gap:16px">
+      <div class="chartbox" style="height:280px"><canvas id="cItem"></canvas></div>
+      <div class="note" style="margin:0;align-self:center;line-height:1.6">
+        <b>Difficulty p</b> is the share answering correctly (aim 0.3–0.9).<br>
+        <b>Discrimination D</b> is p(top 27%) − p(bottom 27%) by total score. Below 0.2 is weak and below 0 means the item misleads stronger students.<br>
+        <b>r<sub>pb</sub></b> is the corrected point-biserial (item vs rest-score).<br>
+        The option bars show how answers split; <span style="color:var(--green);font-weight:700">green</span> is the key. A distractor nobody picks isn't working.<br>
+        <span id="itemN"></span>
+      </div>
+    </div>
+    <div class="tw" style="margin-top:12px;max-height:none"><table id="itemTbl"></table></div>
+  </div>
+
+  <div class="card panel">
+    <div class="ph"><h2>Students</h2><div class="acts"><button class="btn" id="csv">CSV</button></div></div>
+    <div class="tw"><table id="stuTbl"></table></div>
+    <div class="note">Click a row for attempt details, each answer and watch timeline. Flags: <span class="tag r">name?</span> one USN used with different names · <span class="tag a">skip×n</span> blocked attempts to skip ahead · <span class="tag a">away×n</span> left the tab while playing · <span class="tag a">fast</span> median answer time under 4 s.</div>
+  </div>
+</section>
+</div>
+
+<div class="scrim hidden" id="scrim"></div>
+<aside class="drawer" id="drawer" aria-label="Student details"></aside>
+
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+(() => {
+'use strict';
+const CFG = window.TNRC_CONFIG, $ = id => document.getElementById(id);
+const sb = window.supabase.createClient(CFG.SUPABASE_URL, CFG.SUPABASE_KEY, { auth: { persistSession: true, storageKey: 'tnrc-dash' } });
+let D = null, demo = false, basis = 'first', charts = {}, autoT = null, TL = null;
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const fmtT = s => { s = Math.round(s || 0); return s >= 3600 ? Math.floor(s / 3600) + 'h ' + Math.floor(s % 3600 / 60) + 'm' : Math.floor(s / 60) + 'm ' + String(s % 60).padStart(2, '0') + 's'; };
+const fmtD = d => d ? new Date(d).toLocaleString(undefined, { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : '–';
+const mean = a => a.length ? a.reduce((x, y) => x + y, 0) / a.length : NaN;
+const median = a => { if (!a.length) return NaN; const s = [...a].sort((x, y) => x - y), m = s.length >> 1; return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; };
+const sd = a => { if (a.length < 2) return NaN; const m = mean(a); return Math.sqrt(a.reduce((t, x) => t + (x - m) ** 2, 0) / (a.length - 1)); };
+const r2 = x => isFinite(x) ? Math.round(x * 100) / 100 : null;
+
+fetch('assets/timeline.json').then(r => r.json()).then(j => TL = j).catch(() => {});
+
+// ---------- auth ----------
+$('loginForm').addEventListener('submit', async e => {
+  e.preventDefault(); $('loginErr').textContent = ''; $('loginBtn').disabled = true;
+  const { error } = await sb.auth.signInWithPassword({ email: $('em').value.trim(), password: $('pw').value });
+  $('loginBtn').disabled = false;
+  if (error) { $('loginErr').textContent = error.message; return; }
+  enter();
+});
+$('demoBtn').onclick = () => { demo = true; enter(); };
+$('signout').onclick = async () => { if (!demo) await sb.auth.signOut(); location.reload(); };
+async function enter() {
+  if (!demo) {
+    const { data, error } = await sb.rpc('cnc_is_instructor');
+    if (error || !data) { $('loginErr').textContent = 'This account is not on the instructor list for this lesson.'; await sb.auth.signOut(); return; }
+  }
+  $('loginView').classList.add('hidden'); $('app').classList.remove('hidden');
+  $('demoBanner').classList.toggle('hidden', !demo);
+  await load();
+}
+(async () => { const { data } = await sb.auth.getSession(); if (data && data.session) enter(); })();
+
+// ---------- data ----------
+async function all(table, build) {
+  const out = []; const page = 1000;
+  for (let from = 0; ; from += page) {
+    const { data, error } = await build(sb.from(table).select('*')).range(from, from + page - 1);
+    if (error) throw error; out.push(...data); if (data.length < page) break;
+  }
+  return out;
+}
+async function load() {
+  $('refresh').disabled = true;
+  try {
+    if (demo) { D = await sampleData(); }
+    else {
+      const [mods, qs, atts] = await Promise.all([
+        all('cnc_modules', q => q.eq('id', CFG.MODULE_ID)),
+        all('cnc_questions', q => q.eq('module_id', CFG.MODULE_ID).order('ord')),
+        all('cnc_attempts', q => q.eq('module_id', CFG.MODULE_ID).order('started_at'))
+      ]);
+      const ids = atts.map(a => a.id), resp = [];
+      for (let i = 0; i < ids.length; i += 120) resp.push(...await all('cnc_responses', q => q.in('attempt_id', ids.slice(i, i + 120))));
+      D = { module: mods[0], questions: qs, attempts: atts, responses: resp };
+    }
+    $('modTitle').textContent = D.module ? D.module.title : CFG.MODULE_ID;
+    $('openToggle').textContent = D.module && D.module.is_open ? '● Lesson open' : '○ Lesson closed';
+    $('openToggle').style.color = D.module && D.module.is_open ? 'var(--green)' : 'var(--red)';
+    $('updated').textContent = 'Updated ' + new Date().toLocaleTimeString();
+    render();
+  } catch (e) { alert('Could not load data: ' + (e.message || e)); }
+  $('refresh').disabled = false;
+}
+$('refresh').onclick = load;
+$('auto').onchange = e => { clearInterval(autoT); if (e.target.checked) autoT = setInterval(load, 30000); };
+$('openToggle').onclick = async () => {
+  if (demo || !D.module) return;
+  const next = !D.module.is_open;
+  if (!confirm(next ? 'Open the lesson so students can start new attempts?' : 'Close the lesson? Students will not be able to START new attempts (attempts in progress can still finish).')) return;
+  const { error } = await sb.from('cnc_modules').update({ is_open: next }).eq('id', D.module.id);
+  if (error) alert(error.message); else load();
+};
+['q', 'from', 'to', 'prefix'].forEach(id => $(id).addEventListener('input', () => render()));
+$('basis').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; basis = b.dataset.b; [...$('basis').children].forEach(x => x.classList.toggle('on', x === b)); render(); });
+
+// ---------- analysis ----------
+function analyse() {
+  const dur = Number(D.module ? D.module.duration_s : (TL ? TL.duration : 1));
+  const qs = D.questions, nQ = qs.length;
+  const q = $('q').value.trim().toLowerCase(), pre = $('prefix').value.trim().toUpperCase();
+  const f = $('from').value ? new Date($('from').value + 'T00:00') : null, t = $('to').value ? new Date($('to').value + 'T23:59:59') : null;
+  const atts = D.attempts.filter(a => (!f || new Date(a.started_at) >= f) && (!t || new Date(a.started_at) <= t) && (!pre || a.usn.startsWith(pre)));
+  const byA = {}; D.responses.forEach(r => (byA[r.attempt_id] = byA[r.attempt_id] || {})[r.qid] = r);
+  const byU = {}; atts.forEach(a => (byU[a.usn] = byU[a.usn] || []).push(a));
+  const students = Object.entries(byU).map(([usn, list]) => {
+    list.sort((x, y) => new Date(x.started_at) - new Date(y.started_at));
+    const done = list.filter(a => a.completed_at);
+    const first = list[0], latest = list[list.length - 1];
+    const best = [...list].sort((x, y) => y.score - x.score || (y.completed_at ? 1 : 0) - (x.completed_at ? 1 : 0) || new Date(x.started_at) - new Date(y.started_at))[0];
+    const names = [...new Set(list.map(a => a.name.trim().toLowerCase()))];
+    const pick = basis === 'best' ? best : basis === 'latest' ? latest : first;
+    const times = list.flatMap(a => Object.values(byA[a.id] || {}).map(r => r.time_ms || 0));
+    return { usn, name: list[list.length - 1].name, names: [...new Set(list.map(a => a.name))], nameMismatch: names.length > 1, list, first, best, latest, pick, doneCount: done.length,
+      watchPct: Math.min(100, Math.round(Math.max(...list.map(a => Number(a.watched_s))) / dur * 100)),
+      active: list.reduce((s, a) => s + Number(a.active_s || 0), 0), seek: list.reduce((s, a) => s + a.seek_blocked, 0), away: list.reduce((s, a) => s + a.tab_hidden, 0),
+      medT: median(times) / 1000, last: list.reduce((m, a) => new Date(a.last_seen) > m ? new Date(a.last_seen) : m, new Date(0)) };
+  }).filter(s => !q || s.usn.toLowerCase().includes(q) || s.names.some(n => n.toLowerCase().includes(q)));
+  const P = students.map(s => s.pick);
+  const full = P.filter(a => a.answered >= nQ && nQ > 0);
+  const scores = full.map(a => a.score);
+  // item analysis on complete response sets
+  const rows = full.map(a => ({ a, T: a.score, it: qs.map(x => (byA[a.id] || {})[x.qid]) }));
+  rows.sort((x, y) => y.T - x.T);
+  const g = Math.max(1, Math.round(rows.length * .27)), up = rows.slice(0, g), lo = rows.slice(-g);
+  const items = qs.map((x, i) => {
+    const resp = rows.map(r => r.it[i]).filter(Boolean);
+    const p = resp.length ? resp.filter(r => r.correct).length / resp.length : NaN;
+    const pu = up.filter(r => r.it[i] && r.it[i].correct).length / (up.length || 1), pl = lo.filter(r => r.it[i] && r.it[i].correct).length / (lo.length || 1);
+    const xs = rows.map(r => r.it[i] && r.it[i].correct ? 1 : 0), ys = rows.map((r, k) => r.T - xs[k]);
+    const mx = mean(xs), my = mean(ys); let num = 0, dx = 0, dy = 0; xs.forEach((v, k) => { num += (v - mx) * (ys[k] - my); dx += (v - mx) ** 2; dy += (ys[k] - my) ** 2; });
+    const rpb = dx && dy ? num / Math.sqrt(dx * dy) : NaN;
+    const counts = Object.fromEntries(x.options.map(o => [o.id, 0])); resp.forEach(r => counts[r.chosen] = (counts[r.chosen] || 0) + 1);
+    const flags = [];
+    if (rows.length >= 5) {
+      if (p > .9) flags.push(['too easy', 'a']); if (p < .3) flags.push(['hard', 'r']);
+      if (rows.length >= 10 && pu - pl < .2) flags.push([pu - pl < 0 ? 'misleads' : 'weak D', 'r']);
+      x.options.filter(o => o.id !== x.answer && !counts[o.id]).forEach(o => flags.push(['unused ' + o.id.toUpperCase(), 'a']));
+    }
+    return { qid: x.qid, n: i + 1, prompt: x.prompt, answer: x.answer, options: x.options, p, D: pu - pl, rpb, counts, total: resp.length, medT: median(resp.map(r => r.time_ms || 0)) / 1000, flags };
+  });
+  // KR-20 reliability
+  const k = nQ, varT = sd(scores) ** 2; const sumpq = items.reduce((s, it) => s + (isFinite(it.p) ? it.p * (1 - it.p) : 0), 0);
+  const kr20 = rows.length > 2 && varT > 0 ? (k / (k - 1)) * (1 - sumpq / varT) : NaN;
+  // retention (5 s bins)
+  const bins = Math.ceil(dur / 5), ret = Array(bins).fill(0);
+  P.forEach(a => { const seg = (a.segments || []); for (let b = 0; b < bins; b++) { const m = Math.min(b * 5 + 2.5, dur - 0.5); if (seg.some(s => m >= s[0] && m <= s[1])) ret[b]++; } });
+  const retPct = ret.map(c => P.length ? c / P.length * 100 : 0);
+  const dist = Array(nQ + 1).fill(0); scores.forEach(s => dist[s]++);
+  const now = Date.now(), live = D.attempts.filter(a => !a.completed_at && now - new Date(a.last_seen) < 120000).length;
+  return { dur, students, P, full, scores, items, kr20, retPct, dist, live, nQ, byA, attsN: atts.length };
+}
+
+// ---------- render ----------
+let A;
+function render() {
+  if (!D) return; A = analyse();
+  const { students, P, full, scores, nQ } = A;
+  $('kStu').textContent = students.length; $('kStuS').textContent = `${A.attsN} attempts in total`;
+  const done = P.filter(a => a.completed_at).length;
+  $('kDone').textContent = students.length ? Math.round(done / students.length * 100) + '%' : '–'; $('kDoneS').textContent = `${done} of ${students.length} (${basis} attempt)`;
+  $('kMean').textContent = scores.length ? mean(scores).toFixed(2) : '–'; $('kMeanS').textContent = scores.length ? `of ${nQ} · SD ${isFinite(sd(scores)) ? sd(scores).toFixed(2) : '–'} · n=${scores.length}` : 'no complete answer sets yet';
+  $('kMed').textContent = scores.length ? median(scores) : '–'; $('kMedS').textContent = isFinite(A.kr20) ? `KR-20 reliability ${A.kr20.toFixed(2)}` : 'KR-20 needs more data';
+  const w = students.map(s => s.watchPct); $('kWatch').textContent = w.length ? Math.round(mean(w)) + '%' : '–'; $('kWatchS').textContent = w.length ? `median time on page ${fmtT(median(students.map(s => s.active)))}` : '';
+  $('kLive').textContent = A.live;
+  drawCharts(); itemTable(); stuTable();
+  $('distNote').textContent = scores.length ? `${scores.length} students with all ${nQ} answers (${basis} attempt). ${scores.filter(s => s >= Math.ceil(nQ * .75)).length} scored ≥ 75%.` : '';
+  $('itemN').textContent = full.length ? `Based on ${full.length} complete ${basis} attempts.` + (full.length < 10 ? ' Below 10 students, treat D and r_pb as rough indicators.' : '') : '';
+}
+function chartTheme() { const tc = css('--muted'), gc = css('--line'); return { tc, gc }; }
+function drawCharts() {
+  const { tc, gc } = chartTheme(); Chart.defaults.font.family = 'Inter, system-ui, sans-serif'; Chart.defaults.color = tc;
+  const mk = (id, cfg) => { if (charts[id]) charts[id].destroy(); charts[id] = new Chart($(id), cfg); };
+  const blue = css('--blue'), green = css('--green'), amber = css('--amber'), red = css('--red');
+  mk('cDist', { type: 'bar', data: { labels: A.dist.map((_, i) => i), datasets: [{ label: 'Students', data: A.dist, backgroundColor: A.dist.map((_, i) => i >= Math.ceil(A.nQ * .75) ? green : i >= Math.ceil(A.nQ * .5) ? amber : red), borderRadius: 4 }] },
+    options: { maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { title: { display: true, text: 'Score (out of ' + A.nQ + ')' }, grid: { display: false } }, y: { beginAtZero: true, ticks: { precision: 0 }, title: { display: true, text: 'Students' }, grid: { color: gc } } } } });
+  const labels = A.retPct.map((_, i) => i * 5);
+  const cps = TL ? TL.checkpoints.map(c => ({ x: Math.floor(c.t / 5) * 5, y: A.retPct[Math.floor(c.t / 5)] || 0 })) : [];
+  mk('cRet', { type: 'line', data: { labels, datasets: [{ label: '% watched', data: A.retPct, borderColor: blue, backgroundColor: blue + '22', fill: true, pointRadius: 0, tension: .2 },
+    { type: 'scatter', label: 'Quick check', data: cps, pointStyle: 'rectRot', pointRadius: 7, backgroundColor: amber, borderColor: amber }] },
+    options: { maintainAspectRatio: false, parsing: true, plugins: { legend: { display: false }, tooltip: { callbacks: { title: i => fmtT(+i[0].label) } } },
+      scales: { x: { type: 'linear', min: 0, max: A.dur, title: { display: true, text: 'Video time (s)' }, grid: { display: false } }, y: { min: 0, max: 100, title: { display: true, text: '% of students' }, grid: { color: gc } } } } });
+  charts.cRet.data.datasets[0].data = A.retPct.map((v, i) => ({ x: i * 5, y: v }));
+  charts.cRet.update();
+  mk('cItem', { type: 'bar', data: { labels: A.items.map(i => 'Q' + i.n), datasets: [
+    { label: 'Difficulty p', data: A.items.map(i => r2(i.p)), backgroundColor: blue, borderRadius: 3 },
+    { label: 'Discrimination D', data: A.items.map(i => r2(i.D)), backgroundColor: amber, borderRadius: 3 }] },
+    options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } }, scales: { x: { grid: { display: false } }, y: { min: -0.2, max: 1, grid: { color: gc } } } } });
+}
+function itemTable() {
+  const cols = ['#e11d48', '#7c3aed', '#0891b2', '#64748b'];
+  const t = $('itemTbl');
+  t.innerHTML = `<thead><tr><th>Q</th><th>Question</th><th class="n">n</th><th class="n">p</th><th class="n">D</th><th class="n">r<sub>pb</sub></th><th>Answer split</th><th class="n">Median time</th><th>Flags</th></tr></thead><tbody>` +
+    A.items.map(it => {
+      const bars = it.options.map((o, k) => { const c = it.counts[o.id] || 0, pct = it.total ? c / it.total * 100 : 0; return `<span title="${o.id.toUpperCase()}: ${esc(o.text)} — ${c}" style="width:${pct}%;background:${o.id === it.answer ? 'var(--green)' : cols[k % 4]}">${pct >= 9 ? o.id.toUpperCase() : ''}</span>`; }).join('');
+      return `<tr><td class="mono">Q${it.n}</td><td><span class="prompt" title="${esc(it.prompt)}">${esc(it.prompt)}</span></td><td class="n">${it.total}</td><td class="n">${isFinite(it.p) ? it.p.toFixed(2) : '–'}</td><td class="n">${isFinite(it.D) && it.total ? it.D.toFixed(2) : '–'}</td><td class="n">${isFinite(it.rpb) ? it.rpb.toFixed(2) : '–'}</td><td><div class="optbar">${bars}</div></td><td class="n">${isFinite(it.medT) ? it.medT.toFixed(1) + ' s' : '–'}</td><td>${it.flags.map(f => `<span class="tag ${f[1]}">${f[0]}</span>`).join('')}</td></tr>`;
+    }).join('') + '</tbody>';
+}
+let sortK = 'usn', sortDir = 1;
+function stuTable() {
+  const cols = [['usn', 'USN'], ['name', 'Name'], ['att', 'Attempts', 1], ['first', 'First', 1], ['best', 'Best', 1], ['latest', 'Latest', 1], ['watch', 'Watched', 1], ['time', 'Time on page', 1], ['status', 'Status'], ['last', 'Last active'], ['flags', 'Flags']];
+  const val = (s, k) => ({ usn: s.usn, name: s.name, att: s.list.length, first: s.first.score, best: s.best.score, latest: s.latest.score, watch: s.watchPct, time: s.active, status: s.doneCount ? 2 : s.list.some(a => a.answered) ? 1 : 0, last: +s.last, flags: (s.nameMismatch ? 4 : 0) + s.seek + s.away }[k]);
+  const rows = [...A.students].sort((a, b) => { const x = val(a, sortK), y = val(b, sortK); return (x > y ? 1 : x < y ? -1 : 0) * sortDir; });
+  const sc = a => `${a.score}/${a.total}${a.completed_at ? '' : '<span class="muted">*</span>'}`;
+  $('stuTbl').innerHTML = `<thead><tr>${cols.map(c => `<th data-k="${c[0]}" class="${c[2] ? 'n' : ''}">${c[1]}${sortK === c[0] ? (sortDir > 0 ? ' ▲' : ' ▼') : ''}</th>`).join('')}</tr></thead><tbody>` +
+    rows.map(s => {
+      const flags = (s.nameMismatch ? '<span class="tag r">name?</span>' : '') + (s.seek ? `<span class="tag a">skip×${s.seek}</span>` : '') + (s.away > 2 ? `<span class="tag a">away×${s.away}</span>` : '') + (isFinite(s.medT) && s.medT < 4 ? '<span class="tag a">fast</span>' : '');
+      const st = s.doneCount ? '<span class="tag g">completed</span>' : (Date.now() - s.last < 120000 ? '<span class="tag a">watching now</span>' : '<span class="tag">in progress</span>');
+      return `<tr data-usn="${esc(s.usn)}"><td class="mono">${esc(s.usn)}</td><td>${esc(s.name)}</td><td class="n">${s.list.length}</td><td class="n">${sc(s.first)}</td><td class="n">${sc(s.best)}</td><td class="n">${sc(s.latest)}</td><td class="n">${s.watchPct}%</td><td class="n">${fmtT(s.active)}</td><td>${st}</td><td>${fmtD(s.last)}</td><td>${flags}</td></tr>`;
+    }).join('') + (rows.length ? '' : `<tr><td colspan="11" class="muted" style="text-align:center;padding:30px">No students yet. Share the lesson link and results appear here.</td></tr>`) + '</tbody>';
+  $('stuTbl').querySelectorAll('th').forEach(th => th.onclick = () => { const k = th.dataset.k; sortDir = sortK === k ? -sortDir : 1; sortK = k; stuTable(); });
+  $('stuTbl').querySelectorAll('tbody tr[data-usn]').forEach(tr => tr.onclick = () => openDrawer(tr.dataset.usn));
+}
+// ---------- drawer ----------
+async function openDrawer(usn) {
+  const s = A.students.find(x => x.usn === usn); if (!s) return;
+  const dw = $('drawer'), qs = D.questions;
+  const html = [`<div style="display:flex;justify-content:space-between;align-items:start;gap:10px"><div><div class="mono muted">${esc(s.usn)}</div><h2 style="margin:2px 0 4px">${esc(s.name)}</h2>${s.nameMismatch ? `<div class="tag r">Names used: ${s.names.map(esc).join(' / ')}</div>` : ''}</div><button class="btn" id="dwClose">✕</button></div>`];
+  for (const a of [...s.list].reverse()) {
+    const resp = A.byA[a.id] || {};
+    const segs = (a.segments || []).map(g => `<span style="left:${g[0] / A.dur * 100}%;width:${(g[1] - g[0]) / A.dur * 100}%"></span>`).join('');
+    html.push(`<div class="att"><div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><b>Attempt #${a.attempt_no} · ${a.score}/${a.total}</b><span class="muted">${fmtD(a.started_at)}${a.completed_at ? ' → ' + fmtD(a.completed_at) : ' · not finished'}</span></div>
+      <div class="muted" style="font-size:12px;margin-top:4px">Watched ${Math.round(a.watched_s / A.dur * 100)}% · reached ${fmtT(a.max_pos_s)} · time on page ${fmtT(a.active_s)} · skip attempts ${a.seek_blocked} · left tab ${a.tab_hidden} · rewinds ${a.rewinds}</div>
+      <div class="timeline" title="Parts of the video watched">${segs}</div>
+      ${qs.map((q, i) => { const r = resp[q.qid]; const o = r && q.options.find(x => x.id === r.chosen); return `<div class="qrow"><span class="dotq" style="background:${!r ? 'var(--line)' : r.correct ? 'var(--green)' : 'var(--red)'}">${i + 1}</span><span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(q.prompt)}">${r ? esc(r.chosen.toUpperCase() + ' · ' + (o ? o.text : '')) : '<span class="muted">not answered</span>'}</span><span class="muted mono" style="font-size:11px">${r && r.time_ms ? (r.time_ms / 1000).toFixed(1) + 's' : ''}</span></div>`; }).join('')}
+      ${demo ? '' : `<div style="margin-top:8px"><button class="btn danger" data-del="${a.id}">Delete this attempt</button></div>`}</div>`);
+  }
+  dw.innerHTML = html.join(''); dw.classList.add('open'); $('scrim').classList.remove('hidden');
+  $('dwClose').onclick = closeDrawer;
+  dw.querySelectorAll('[data-del]').forEach(b => b.onclick = async () => {
+    if (!confirm('Permanently delete this attempt and its answers? Use this only for test runs.')) return;
+    const { error } = await sb.from('cnc_attempts').delete().eq('id', b.dataset.del);
+    if (error) alert(error.message); else { closeDrawer(); load(); }
+  });
+}
+function closeDrawer() { $('drawer').classList.remove('open'); $('scrim').classList.add('hidden'); }
+$('scrim').onclick = closeDrawer; document.addEventListener('keydown', e => e.key === 'Escape' && closeDrawer());
+
+// ---------- exports ----------
+function sheets() {
+  const qs = D.questions;
+  const stu = A.students.map(s => ({ USN: s.usn, Name: s.name, 'Other names': s.nameMismatch ? s.names.join(' / ') : '', Attempts: s.list.length, 'First score': s.first.score, 'Best score': s.best.score, 'Latest score': s.latest.score, 'Out of': s.first.total, Completed: s.doneCount ? 'Yes' : 'No', 'Watched %': s.watchPct, 'Time on page (min)': r2(s.active / 60), 'Skip attempts': s.seek, 'Left tab': s.away, 'Median answer time (s)': r2(s.medT), 'Last active': s.last.toISOString() }));
+  const att = A.students.flatMap(s => s.list).map(a => ({ 'Attempt ID': a.id, USN: a.usn, Name: a.name, 'Attempt #': a.attempt_no, Started: a.started_at, Completed: a.completed_at || '', Score: a.score, 'Out of': a.total, Answered: a.answered, 'Watched (s)': Number(a.watched_s), 'Watched %': Math.round(a.watched_s / A.dur * 100), 'Furthest point (s)': Number(a.max_pos_s), 'Time on page (s)': Number(a.active_s), 'Skip attempts': a.seek_blocked, 'Left tab': a.tab_hidden, Rewinds: a.rewinds, ...Object.fromEntries(qs.map(q => { const r = (A.byA[a.id] || {})[q.qid]; return [q.qid.toUpperCase(), r ? (r.correct ? 1 : 0) : ''] })) }));
+  const resp = A.students.flatMap(s => s.list).flatMap(a => qs.map(q => ({ a, q, r: (A.byA[a.id] || {})[q.qid] })).filter(x => x.r)).map(({ a, q, r }) => ({ USN: a.usn, Name: a.name, 'Attempt #': a.attempt_no, Question: q.qid.toUpperCase(), Prompt: q.prompt, Chosen: r.chosen.toUpperCase(), Key: q.answer.toUpperCase(), Correct: r.correct ? 1 : 0, 'Time (s)': r.time_ms ? r2(r.time_ms / 1000) : '', 'Video position (s)': r.video_pos, 'Answered at': r.answered_at }));
+  const items = A.items.map(it => ({ Question: 'Q' + it.n, Prompt: it.prompt, Key: it.answer.toUpperCase(), n: it.total, 'Difficulty p': r2(it.p), 'Discrimination D': r2(it.D), 'Point-biserial r': r2(it.rpb), ...Object.fromEntries(it.options.map(o => ['Chose ' + o.id.toUpperCase(), it.counts[o.id] || 0])), 'Median time (s)': r2(it.medT), Flags: it.flags.map(f => f[0]).join(', ') }));
+  const dist = A.dist.map((c, i) => ({ Score: i, Students: c }));
+  const ret = A.retPct.map((v, i) => ({ 'Time from (s)': i * 5, 'Time to (s)': Math.min(A.dur, i * 5 + 5), '% of students who watched': r2(v) }));
+  const summary = [{ Metric: 'Lesson', Value: D.module ? D.module.title : CFG.MODULE_ID }, { Metric: 'Basis', Value: basis + ' attempt per student' }, { Metric: 'Students', Value: A.students.length }, { Metric: 'Complete answer sets', Value: A.scores.length }, { Metric: 'Mean score', Value: r2(mean(A.scores)) }, { Metric: 'SD', Value: r2(sd(A.scores)) }, { Metric: 'Median', Value: median(A.scores) }, { Metric: 'KR-20', Value: r2(A.kr20) }, { Metric: 'Exported', Value: new Date().toISOString() }, ...(demo ? [{ Metric: 'NOTE', Value: 'SAMPLE DATA — not real students' }] : [])];
+  return { Summary: summary, Students: stu, Attempts: att, Responses: resp, 'Item analysis': items, 'Score distribution': dist, Retention: ret };
+}
+$('xlsx').onclick = () => {
+  const wb = XLSX.utils.book_new();
+  Object.entries(sheets()).forEach(([n, rows]) => { const ws = XLSX.utils.json_to_sheet(rows.length ? rows : [{ '': 'no data' }]); ws['!cols'] = Object.keys(rows[0] || { a: 1 }).map(k => ({ wch: Math.min(48, Math.max(10, k.length + 2)) })); XLSX.utils.book_append_sheet(wb, ws, n); });
+  XLSX.writeFile(wb, `${CFG.MODULE_ID}_results_${new Date().toISOString().slice(0, 10)}${demo ? '_SAMPLE' : ''}.xlsx`);
+};
+$('csv').onclick = () => {
+  const rows = sheets().Students; if (!rows.length) return;
+  const h = Object.keys(rows[0]); const q = v => `"${String(v ?? '').replace(/"/g, '""')}"`;
+  const blob = new Blob(['﻿' + [h.map(q).join(','), ...rows.map(r => h.map(k => q(r[k])).join(','))].join('\r\n')], { type: 'text/csv' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `${CFG.MODULE_ID}_students.csv`; a.click();
+};
+// Publication-style PNG: Times New Roman, bold, black & white, symbols, closed box, no grid, ticks only bottom/left
+document.querySelectorAll('[data-pub]').forEach(b => b.onclick = () => pubPNG(b.dataset.pub));
+function pubPNG(kind) {
+  const W = 1800, H = 1200, cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+  const F = 'Times New Roman', blk = '#000';
+  const ax = (title, extra = {}) => ({ title: { display: true, text: title, color: blk, font: { family: F, size: 34, weight: 'bold' } }, ticks: { color: blk, font: { family: F, size: 28, weight: 'bold' } }, grid: { display: false, drawTicks: true, tickColor: blk, tickLength: 10 }, border: { display: true, color: blk, width: 2.5 }, ...extra });
+  const mirror = (pos, axisId, base) => ({ position: pos, ...(axisId === 'x2' ? { type: base.type || 'category', min: base.min, max: base.max } : { min: base.min, max: base.max }), display: true, ticks: { display: false }, grid: { display: false, drawTicks: false }, border: { display: true, color: blk, width: 2.5 }, title: { display: false } });
+  let cfg, title;
+  if (kind === 'dist') {
+    title = 'Score distribution';
+    const x = ax('Score (out of ' + A.nQ + ')'), y = ax('Number of students', { beginAtZero: true, ticks: { color: blk, precision: 0, font: { family: F, size: 28, weight: 'bold' } } });
+    cfg = { type: 'bar', data: { labels: A.dist.map((_, i) => i), datasets: [{ data: A.dist, backgroundColor: '#fff', borderColor: blk, borderWidth: 3, barPercentage: .7 }] }, options: { scales: { x, y, x2: mirror('top', 'x2', {}), y2: mirror('right', 'y2', { min: 0 }) } } };
+  } else if (kind === 'ret') {
+    title = 'Video retention';
+    const x = ax('Video time (s)', { type: 'linear', min: 0, max: Math.ceil(A.dur / 60) * 60 }), y = ax('Students who watched (%)', { min: 0, max: 100 });
+    const pts = A.retPct.map((v, i) => ({ x: i * 5 + 2.5, y: v }));
+    cfg = { type: 'line', data: { datasets: [{ label: 'Retention', data: pts, borderColor: blk, borderWidth: 3, pointStyle: 'circle', pointRadius: pts.map((_, i) => i % 6 ? 0 : 8), pointBackgroundColor: '#fff', pointBorderColor: blk, pointBorderWidth: 2.5, tension: 0 },
+      ...(TL ? [{ label: 'Quick check', type: 'scatter', data: TL.checkpoints.map(c => ({ x: c.t, y: A.retPct[Math.floor(c.t / 5)] || 0 })), pointStyle: 'triangle', pointRadius: 13, backgroundColor: blk, borderColor: blk }] : [])] },
+      options: { scales: { x, y, x2: { ...mirror('top', 'x2', { type: 'linear', min: 0, max: Math.ceil(A.dur / 60) * 60 }) }, y2: mirror('right', 'y2', { min: 0, max: 100 }) }, plugins: { legend: { display: true, position: 'top', align: 'end', labels: { color: blk, font: { family: F, size: 30, weight: 'bold' }, usePointStyle: true, boxWidth: 30, padding: 26 } } } } };
+  } else {
+    title = 'Item analysis';
+    const x = ax('Question'), y = ax('Index value', { min: -0.2, max: 1 });
+    cfg = { type: 'bar', data: { labels: A.items.map(i => 'Q' + i.n), datasets: [{ label: 'Difficulty (p)', data: A.items.map(i => r2(i.p)), backgroundColor: '#fff', borderColor: blk, borderWidth: 3 }, { label: 'Discrimination (D)', data: A.items.map(i => r2(i.D)), backgroundColor: blk, borderColor: blk, borderWidth: 3 }] },
+      options: { scales: { x, y, x2: mirror('top', 'x2', {}), y2: mirror('right', 'y2', { min: -0.2, max: 1 }) }, plugins: { legend: { display: true, position: 'top', align: 'end', labels: { color: blk, font: { family: F, size: 30, weight: 'bold' }, boxWidth: 40, padding: 26 } } } } };
+  }
+  cfg.options = { ...cfg.options, responsive: false, animation: false, devicePixelRatio: 1, layout: { padding: { left: 30, right: 50, top: 20, bottom: 20 } },
+    plugins: { legend: { display: false }, ...(cfg.options.plugins || {}), title: { display: true, text: title, color: blk, font: { family: F, size: 40, weight: 'bold' }, padding: { bottom: 24 } }, tooltip: { enabled: false } } };
+  if (cfg.data.datasets[0] && !cfg.data.datasets[0].xAxisID) { /* default axes x,y */ }
+  const bg = { id: 'bg', beforeDraw: c => { const g = c.ctx; g.save(); g.fillStyle = '#fff'; g.fillRect(0, 0, c.width, c.height); g.restore(); } };
+  cfg.plugins = [bg];
+  const ch = new Chart(cv, cfg);
+  const a = document.createElement('a'); a.href = cv.toDataURL('image/png'); a.download = `${CFG.MODULE_ID}_${kind}${demo ? '_SAMPLE' : ''}.png`; a.click(); ch.destroy();
+}
+
+// ---------- sample data (preview only) ----------
+async function sampleData() {
+  if (!TL) TL = await fetch('assets/timeline.json').then(r => r.json());
+  let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  const gauss = () => Math.sqrt(-2 * Math.log(rnd() + 1e-9)) * Math.cos(2 * Math.PI * rnd());
+  const qdefs = [['q1', 'b', -1.2], ['q2', 'c', -1.6], ['q3', 'd', .6], ['q4', 'b', .1], ['q5', 'c', .4], ['q6', 'a', -.8], ['q7', 'b', .9], ['q8', 'b', -.3]];
+  const questions = qdefs.map(([qid, answer], i) => ({ qid, ord: i + 1, answer, prompt: ['Which point does the control move along the path?', 'Which features have NO error?', '0.8 mm nose, 45° chamfer: normal error?', 'OD turning toward chuck uses?', 'ID boring toward chuck uses?', 'Which two offset values are needed?', 'What does the tip code tell the control?', 'Correct way to switch ON compensation?'][i], options: ['a', 'b', 'c', 'd'].map(id => ({ id, text: 'Option ' + id.toUpperCase() })) }));
+  const names = ['Aarav', 'Diya', 'Rohan', 'Ananya', 'Karthik', 'Sneha', 'Varun', 'Meghana', 'Pranav', 'Shreya', 'Nikhil', 'Pooja', 'Suhas', 'Kavya', 'Akash', 'Navya'];
+  const attempts = [], responses = []; const dur = TL.duration, now = Date.now();
+  for (let s = 0; s < 64; s++) {
+    const usn = `4MT22ME${String(s + 1).padStart(3, '0')}`, nm = names[s % 16] + ' ' + 'KSRMPN'[s % 6] + '.';
+    const theta = gauss(); const nAtt = rnd() < .25 ? 2 : 1;
+    for (let k = 0; k < nAtt; k++) {
+      const id = `demo-${s}-${k}`, start = new Date(now - (3 - k) * 86400000 + rnd() * 3600000);
+      const dropAt = rnd() < .12 ? dur * (.2 + rnd() * .5) : dur;
+      let score = 0, answered = 0;
+      TL.checkpoints.forEach(cp => cp.questions.forEach(qid => {
+        if (cp.t > dropAt) return; const qd = qdefs.find(q => q[0] === qid); const p = 1 / (1 + Math.exp(-(1.4 * (theta + k * .5) - qd[2])));
+        const ok = rnd() < p; const wrong = ['a', 'b', 'c', 'd'].filter(o => o !== qd[1]); const chosen = ok ? qd[1] : wrong[rnd() < .6 ? 0 : rnd() < .8 ? 1 : 2];
+        responses.push({ attempt_id: id, qid, chosen, correct: ok, time_ms: Math.round(4000 + rnd() * 20000), video_pos: cp.t, answered_at: start.toISOString() }); score += ok; answered++;
+      }));
+      const watched = Math.min(dropAt, dur) * (.92 + rnd() * .08);
+      attempts.push({ id, module_id: 'demo', usn, name: s === 5 && k === 1 ? 'Rahul S.' : nm, attempt_no: k + 1, started_at: start.toISOString(), last_seen: new Date(+start + watched * 1200).toISOString(), completed_at: dropAt >= dur && answered === 8 ? new Date(+start + dur * 1300).toISOString() : null,
+        watched_s: watched, max_pos_s: Math.min(dropAt, dur), segments: [[0, Math.min(dropAt, dur)]], active_s: watched * (1.1 + rnd() * .5), score, answered, total: 8, seek_blocked: rnd() < .15 ? 1 + Math.floor(rnd() * 3) : 0, tab_hidden: rnd() < .2 ? Math.floor(rnd() * 5) : 0, rewinds: Math.floor(rnd() * 3) });
+    }
+  }
+  return { module: { id: 'demo', title: 'Tool Nose Radius Compensation (SAMPLE)', duration_s: dur, is_open: true }, questions, attempts, responses };
+}
+})();
+</script>
+</body>
+</html>

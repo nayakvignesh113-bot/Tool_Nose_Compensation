@@ -1,0 +1,105 @@
+{
+ "duration": 346.625,
+ "checkpoints": [
+  {
+   "t": 79.188,
+   "questions": [
+    "q1"
+   ],
+   "scene": "nose",
+   "rewind": 32.46
+  },
+  {
+   "t": 124.492,
+   "questions": [
+    "q2"
+   ],
+   "scene": "error",
+   "rewind": 80.988
+  },
+  {
+   "t": 165.53,
+   "questions": [
+    "q3"
+   ],
+   "scene": "calc",
+   "rewind": 126.292
+  },
+  {
+   "t": 213.739,
+   "questions": [
+    "q4",
+    "q5"
+   ],
+   "scene": "g4142",
+   "rewind": 167.33
+  },
+  {
+   "t": 263.586,
+   "questions": [
+    "q6",
+    "q7"
+   ],
+   "scene": "offsets",
+   "rewind": 215.539
+  },
+  {
+   "t": 311.039,
+   "questions": [
+    "q8"
+   ],
+   "scene": "program",
+   "rewind": 265.386
+  }
+ ],
+ "scenes": [
+  {
+   "id": "intro",
+   "title": "Tool Nose Radius Compensation",
+   "start": 1.2,
+   "end": 32.46
+  },
+  {
+   "id": "nose",
+   "title": "The imaginary tool tip",
+   "start": 32.46,
+   "end": 80.988
+  },
+  {
+   "id": "error",
+   "title": "Where the error appears",
+   "start": 80.988,
+   "end": 126.292
+  },
+  {
+   "id": "calc",
+   "title": "How big is the error?",
+   "start": 126.292,
+   "end": 167.33
+  },
+  {
+   "id": "g4142",
+   "title": "G41 \u00b7 G42 \u00b7 G40",
+   "start": 167.33,
+   "end": 215.539
+  },
+  {
+   "id": "offsets",
+   "title": "The offset page: R and T",
+   "start": 215.539,
+   "end": 265.386
+  },
+  {
+   "id": "program",
+   "title": "Programming rules",
+   "start": 265.386,
+   "end": 312.839
+  },
+  {
+   "id": "summary",
+   "title": "Summary",
+   "start": 312.839,
+   "end": 343.625
+  }
+ ]
+}

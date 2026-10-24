@@ -1,0 +1,137 @@
+WEBVTT
+
+00:00:01.200 --> 00:00:08.846
+In CNC turning, the program describes the part outline — but the tool is never a perfect sharp point.
+
+00:00:08.996 --> 00:00:13.523
+Every turning insert has a small rounded corner: the nose radius.
+
+00:00:13.673 --> 00:00:27.159
+Why the radius causes errors on tapers and arcs, how big the error is, and how G41 / G42 / G40 remove it.
+
+00:00:27.309 --> 00:00:31.310
+Answer the quick checks along the way — the video pauses for each one.
+
+00:00:33.460 --> 00:00:42.422
+The insert corner is ground to a radius — typically 0.4, 0.8 or 1.2 mm.
+
+00:00:42.572 --> 00:00:50.324
+A larger radius: stronger edge, better finish — and a larger error.
+
+00:00:50.474 --> 00:00:54.946
+Touch-off: the diameter sets X, the face sets Z.
+
+00:00:55.096 --> 00:01:02.393
+The two touch points lie on tangents to the nose arc — one parallel to Z, one parallel to X.
+
+00:01:02.543 --> 00:01:09.255
+Where the tangents meet is a point not on the tool: the IMAGINARY TOOL TIP.
+
+00:01:09.405 --> 00:01:17.638
+With compensation OFF, the control drives the imaginary tip — not the nose arc — along the programmed path.
+
+00:01:21.988 --> 00:01:31.881
+Straight turning along Z: the contact point lies on the same line the imaginary tip follows.
+
+00:01:32.031 --> 00:01:38.261
+Facing along X: same. Straight turning and facing come out exactly to size.
+
+00:01:38.411 --> 00:01:42.641
+Now let the imaginary tip follow a 45° chamfer.
+
+00:01:42.791 --> 00:01:50.347
+The cutting point has moved around the nose arc — off the line the imaginary tip follows.
+
+00:01:50.497 --> 00:01:55.629
+The nose never reaches the programmed line — a sliver of material is left behind.
+
+00:01:55.779 --> 00:02:02.942
+A convex arc: same effect — oversize, with the largest error halfway around.
+
+00:02:07.292 --> 00:02:18.481
+Taper at angle θ to Z: normal error  e = R (sin θ + cos θ − 1)
+
+00:02:18.631 --> 00:02:21.858
+At 0° and 90° the error is zero.
+
+00:02:22.008 --> 00:02:28.586
+Maximum at 45°:  e = 0.414 R
+
+00:02:28.737 --> 00:02:37.477
+R = 0.8 mm, 45° chamfer:  e ≈ 0.33 mm normal to the surface.
+
+00:02:37.627 --> 00:02:43.980
+On diameter ≈ 0.94 mm — far outside a normal tolerance.
+
+00:02:48.330 --> 00:02:59.262
+TNRC: program the true outline; the control offsets the nose centre so the arc stays tangent to the profile.
+
+00:02:59.412 --> 00:03:03.144
+You tell it which side of the profile the tool is on.
+
+00:03:03.294 --> 00:03:11.010
+G41 — compensation LEFT: looking along the motion, the tool is left of the profile.
+
+00:03:11.160 --> 00:03:15.263
+G42 — compensation RIGHT: the tool is right of the profile.
+
+00:03:15.413 --> 00:03:17.934
+G40 — cancel compensation.
+
+00:03:18.084 --> 00:03:25.961
+Standard view (+X up, tool above centre line): OD turning toward the chuck → G42.
+
+00:03:26.111 --> 00:03:32.189
+ID boring toward the chuck: tool on the other side → G41.
+
+00:03:36.539 --> 00:03:41.656
+The control needs two values on the tool offset page.
+
+00:03:41.806 --> 00:03:45.758
+R — the nose radius (e.g. 0.8).
+
+00:03:45.908 --> 00:03:54.158
+T — tip orientation code: the direction of the imaginary tip from the nose centre.
+
+00:03:54.308 --> 00:04:02.326
+Codes 1–8: the eight directions.  Codes 0 / 9: the programmed point is the nose centre.
+
+00:04:02.476 --> 00:04:14.165
+Charts differ for front- and rear-turret lathes — read T from YOUR machine's chart by matching the direction.
+
+00:04:14.315 --> 00:04:22.036
+Wear R adds to geometry R — correct a worn insert without editing the program.
+
+00:04:26.386 --> 00:04:29.868
+A short finishing program using compensation.
+
+00:04:30.018 --> 00:04:38.096
+Switch ON with G42 on a straight move (G00/G01) while the tool is clear of the part.
+
+00:04:38.246 --> 00:04:44.243
+The start-up move must be longer than the nose radius.
+
+00:04:44.393 --> 00:04:49.680
+Never start or cancel compensation on an arc (G02/G03) — most controls alarm.
+
+00:04:49.830 --> 00:04:58.895
+The control looks ahead — avoid several blocks in a row with no X/Z motion, or it may gouge.
+
+00:04:59.045 --> 00:05:05.100
+Chamfer and arc are now cut to size: the nose stays tangent to the outline.
+
+00:05:05.250 --> 00:05:09.489
+Cancel with G40 on a straight move away from the part.
+
+00:05:13.839 --> 00:05:14.892
+Summary
+
+00:05:15.042 --> 00:05:25.827
+No compensation → tapers and arcs cut wrong, up to 0.414 R at 45°.
+
+00:05:25.977 --> 00:05:38.375
+Set R and T · G42 OD / G41 ID (toward chuck) · start on a straight move in clear air · cancel with G40.
+
+00:05:38.525 --> 00:05:42.475
+Lesson complete — your score and progress have been recorded.
+
